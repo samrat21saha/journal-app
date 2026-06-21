@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .entry-card-animation { animation: fadeIn 0.4s ease-out forwards; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        .dark ::-webkit-scrollbar-track { background: #1a202c; }
+        ::-webkit-scrollbar-thumb { background: #a8a8a8; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4a5568; }
+        ::-webkit-scrollbar-thumb:hover { background: #888; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-black text-slate-800 dark:text-slate-200 transition-colors duration-300">
+
+<div class="container mx-auto max-w-5xl px-4 py-8 md:py-12">
+
+    <header class="relative text-center mb-10">
+        <div class="absolute top-0 right-0 flex items-center gap-2">
+            <button id="theme-toggle" class="p-2 rounded-full text-slate-500 dark:text-gray-400 hover:bg-slate-200 dark:hover:bg-gray-800 focus:outline-none">
+                <svg id="theme-icon-light" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+            <div class="relative">
+                <button id="profile-btn" class="flex items-center gap-2 p-2 rounded-full hover:bg-slate-200 dark:hover:bg-gray-800">
+                    <span id="user-avatar" class="h-8 w-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                    </span>
+                </button>
+                <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-10 py-1 border dark:border-gray-700">
+                    <div id="dropdown-logged-in" class="hidden">
+                        <div class="px-4 py-2 border-b border-slate-200 dark:border-gray-700">
+                            <p class="text-sm font-semibold text-slate-900 dark:text-slate-200">Hello!</p>
+                            <p id="user-email-display" class="text-xs text-slate-500 dark:text-slate-400 truncate"></p>
+                        </div>
+                        <button id="logout-btn" class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                    <div id="dropdown-logged-out">
+                        <button id="dropdown-login-btn" class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-700">Login</button>
+                        <button id="dropdown-signup-btn" class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-700">Sign Up</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center justify-center gap-3">
+            <svg class="h-10 w-10 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">Aura Journal</h1>
+        </div>
+        <p class="text-slate-500 dark:text-gray-400 mt-2">Capture your thoughts, ideas, and daily reflections.</p>
+    </header>
+
+    <main id="app-content">
+        <div id="form-section" class="mb-10">
+            <form id="entry-form" class="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl shadow-lg transition-all duration-300">
+                <h2 id="form-title" class="text-2xl font-semibold mb-6 text-slate-700 dark:text-slate-300">New Entry</h2>
+                <input type="hidden" id="entryId">
+                <fieldset id="form-fieldset" disabled>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">Title</label>
+                            <input type="text" id="title" class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition disabled:opacity-50" placeholder="A wonderful day..." required>
+                        </div>
+                        <div>
+                            <label for="content" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">Content</label>
+                            <textarea id="content" rows="5" class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition disabled:opacity-50" placeholder="Today I felt..." required></textarea>
+                        </div>
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">Category</label>
+                            <input type="text" id="category" class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition disabled:opacity-50" placeholder="e.g., Work, Personal, Ideas">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 mt-8">
+                        <button type="submit" id="save-entry-btn" class="w-full md:w-auto px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none">
+                            Save Entry
+                        </button>
+                        <button type="button" id="cancel-edit-btn" class="hidden w-full md:w-auto px-6 py-3 bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300 transition">
+                            Cancel Edit
+                        </button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div>
+            <h2 class="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-gray-700 pb-3">Your Entries</h2>
+            <div id="entriesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <p id="no-entries-message" class="text-center text-gray-500 dark:text-gray-400 py-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm hidden">You have no journal entries yet. Login to see and add new entries!</p>
+        </div>
+    </main>
+
+    <div id="auth-container" class="max-w-md mx-auto mt-10 hidden">
+        <div id="login-view">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+                <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-6 text-center">Welcome Back</h3>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">Email</label>
+                        <input type="email" id="login-email" class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg" required>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label for="login-password" class="block text-sm font-medium text-slate-600 dark:text-gray-400">Password</label>
+                            <button type="button" id="show-forgot" class="text-xs text-green-500 hover:underline">Forgot password?</button>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="login-password" class="w-full px-4 py-2 pr-10 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg" required>
+                            <button type="button" id="toggle-login-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                                <svg id="login-password-eye" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                <svg id="login-password-eye-off" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p id="login-error" class="text-red-500 text-sm hidden"></p>
+                    <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 disabled:opacity-50">Login</button>
+                </form>
+                <div class="text-center text-sm text-slate-500 dark:text-gray-400 mt-6 space-y-2">
+                    <p>Don't have an account? <button id="show-signup" class="font-semibold text-green-500 hover:underline">Sign Up</button></p>
+                    <p><button class="back-to-journal font-semibold text-gray-500 hover:underline">Back to Journal</button></p>
+                </div>
+            </div>
+        </div>
+        <div id="signup-view" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+                <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-6 text-center">Create your Account</h3>
+                <form id="signup-form" class="space-y-4">
+                    <div>
+                        <label for="signup-email" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">Email</label>
+                        <input type="email" id="signup-email" class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label for="signup-password" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">Password</label>
+                        <div class="relative">
+                            <input type="password" id="signup-password" class="w-full px-4 py-2 pr-10 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg" required minlength="6">
+                            <button type="button" id="toggle-signup-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                                <svg id="signup-password-eye" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                <svg id="signup-password-eye-off" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p id="signup-error" class="text-red-500 text-sm hidden"></p>
+                    <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 disabled:opacity-50">Sign Up</button>
+                </form>
+                <div class="text-center text-sm text-slate-500 dark:text-gray-400 mt-6 space-y-2">
+                    <p>Already have an account? <button id="show-login" class="font-semibold text-green-500 hover:underline">Login</button></p>
+                    <p><button class="back-to-journal font-semibold text-gray-500 hover:underline">Back to Journal</button></p>
+                </div>
+            </div>
+        </div>
+        <div id="forgot-view" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+                <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-2 text-center">Reset your password</h3>
+                <p class="text-sm text-slate-500 dark:text-gray-400 mb-6 text-center">Enter your email and we'll send you a 6-digit code.</p>
+                <form id="forgot-form" class="space-y-4">
+                    <div>
+                        <label for="forgot-email" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">Email</label>
+                        <input type="email" id="forgot-email" class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg" required>
+                    </div>
+                    <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 disabled:opacity-50">Send code</button>
+                </form>
+                <div class="text-center text-sm text-slate-500 dark:text-gray-400 mt-6 space-y-2">
+                    <p><button id="forgot-back-to-login" class="font-semibold text-green-500 hover:underline">Back to Login</button></p>
+                </div>
+            </div>
+        </div>
+        <div id="otp-view" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+                <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-2 text-center">Enter your code</h3>
+                <p class="text-sm text-slate-500 dark:text-gray-400 mb-6 text-center">We sent a 6-digit code to <span id="otp-email-display" class="font-medium"></span>.</p>
+                <form id="otp-form" class="space-y-4">
+                    <div>
+                        <label for="otp-code" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">6-digit code</label>
+                        <input type="text" id="otp-code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-center tracking-[0.5em] font-semibold" placeholder="000000" required>
+                    </div>
+                    <div>
+                        <label for="otp-new-password" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">New password</label>
+                        <div class="relative">
+                            <input type="password" id="otp-new-password" class="w-full px-4 py-2 pr-10 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg" required minlength="6">
+                            <button type="button" id="toggle-otp-new-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                                <svg id="otp-new-password-eye" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                <svg id="otp-new-password-eye-off" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="otp-confirm-password" class="block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1">Confirm new password</label>
+                        <div class="relative">
+                            <input type="password" id="otp-confirm-password" class="w-full px-4 py-2 pr-10 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg" required minlength="6">
+                            <button type="button" id="toggle-otp-confirm-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                                <svg id="otp-confirm-password-eye" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                <svg id="otp-confirm-password-eye-off" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p id="otp-error" class="text-red-500 text-sm hidden"></p>
+                    <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 disabled:opacity-50">Reset Password</button>
+                </form>
+                <div class="text-center text-sm text-slate-500 dark:text-gray-400 mt-6 space-y-2">
+                    <p><button id="otp-resend-btn" class="font-semibold text-green-500 hover:underline">Resend code</button></p>
+                    <p><button id="otp-back-to-login" class="font-semibold text-gray-500 hover:underline">Back to Login</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="delete-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-200 mb-2">Delete entry?</h3>
+        <p class="text-sm text-slate-500 dark:text-gray-400 mb-6">This action cannot be undone.</p>
+        <div class="flex gap-3">
+            <button id="confirm-delete-btn" class="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">Delete</button>
+            <button id="cancel-delete-btn" class="flex-1 px-4 py-2 bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg shadow-lg text-white text-sm font-medium z-50 transition-opacity duration-300"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // matches jwt.expiration-ms on the backend
+
+        const authContainer = document.getElementById('auth-container');
+        const loginView = document.getElementById('login-view');
+        const signupView = document.getElementById('signup-view');
+        const forgotView = document.getElementById('forgot-view');
+        const otpView = document.getElementById('otp-view');
+        const showSignupBtn = document.getElementById('show-signup');
+        const showLoginBtn = document.getElementById('show-login');
+        const showForgotBtn = document.getElementById('show-forgot');
+        const forgotBackToLoginBtn = document.getElementById('forgot-back-to-login');
+        const otpBackToLoginBtn = document.getElementById('otp-back-to-login');
+        const otpResendBtn = document.getElementById('otp-resend-btn');
+        const backToJournalBtns = document.querySelectorAll('.back-to-journal');
+
+        const dropdownLoggedIn = document.getElementById('dropdown-logged-in');
+        const dropdownLoggedOut = document.getElementById('dropdown-logged-out');
+        const dropdownLoginBtn = document.getElementById('dropdown-login-btn');
+        const dropdownSignupBtn = document.getElementById('dropdown-signup-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+        const userAvatar = document.getElementById('user-avatar');
+        const userEmailDisplay = document.getElementById('user-email-display');
+        const formFieldset = document.getElementById('form-fieldset');
+        const noEntriesMessage = document.getElementById('no-entries-message');
+        const entriesContainer = document.getElementById('entriesContainer');
+
+        const signupForm = document.getElementById('signup-form');
+        const loginForm = document.getElementById('login-form');
+        const forgotForm = document.getElementById('forgot-form');
+        const otpForm = document.getElementById('otp-form');
+        const entryForm = document.getElementById('entry-form');
+        const signupError = document.getElementById('signup-error');
+        const loginError = document.getElementById('login-error');
+        const otpError = document.getElementById('otp-error');
+
+        let pendingResetEmail = null;
+
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIconLight = document.getElementById('theme-icon-light');
+        const themeIconDark = document.getElementById('theme-icon-dark');
+        const docElement = document.documentElement;
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                docElement.classList.add('dark');
+                themeIconLight.classList.add('hidden');
+                themeIconDark.classList.remove('hidden');
+            } else {
+                docElement.classList.remove('dark');
+                themeIconLight.classList.remove('hidden');
+                themeIconDark.classList.add('hidden');
+            }
+        };
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+        themeToggleBtn.addEventListener('click', () => {
+            const newTheme = docElement.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        function setupPasswordToggle(toggleBtnId, inputId, eyeId, eyeOffId) {
+            const btn = document.getElementById(toggleBtnId);
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById(eyeId);
+            const eyeOff = document.getElementById(eyeOffId);
+            btn.addEventListener('click', () => {
+                const showing = input.type === 'text';
+                input.type = showing ? 'password' : 'text';
+                eye.classList.toggle('hidden', !showing);
+                eyeOff.classList.toggle('hidden', showing);
+            });
+        }
+        setupPasswordToggle('toggle-login-password', 'login-password', 'login-password-eye', 'login-password-eye-off');
+        setupPasswordToggle('toggle-signup-password', 'signup-password', 'signup-password-eye', 'signup-password-eye-off');
+        setupPasswordToggle('toggle-otp-new-password', 'otp-new-password', 'otp-new-password-eye', 'otp-new-password-eye-off');
+        setupPasswordToggle('toggle-otp-confirm-password', 'otp-confirm-password', 'otp-confirm-password-eye', 'otp-confirm-password-eye-off');
+
+        function showToast(message, isError) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg shadow-lg text-white text-sm font-medium z-50 transition-opacity duration-300 ' + (isError ? 'bg-red-600' : 'bg-slate-800 dark:bg-slate-700');
+            toast.classList.remove('hidden');
+            requestAnimationFrame(() => toast.classList.remove('opacity-0'));
+            clearTimeout(window.__toastTimer);
+            window.__toastTimer = setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3000);
+        }
+
+        function clearSession() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('loginTimestamp');
+        }
+
+        function isLoggedIn() {
+            const token = localStorage.getItem('authToken');
+            const timestamp = localStorage.getItem('loginTimestamp');
+            if (!token || !timestamp) return false;
+            const age = Date.now() - parseInt(timestamp, 10);
+            if (age > SESSION_DURATION_MS) {
+                clearSession();
+                return false;
+            }
+            return true;
+        }
+
+        function getAuthHeader() {
+            if (!isLoggedIn()) return {};
+            return { 'Authorization': 'Bearer ' + localStorage.getItem('authToken') };
+        }
+        function getCurrentUsername() { return isLoggedIn() ? localStorage.getItem('username') : null; }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function hideAllAuthViews() {
+            loginView.classList.add('hidden');
+            signupView.classList.add('hidden');
+            forgotView.classList.add('hidden');
+            otpView.classList.add('hidden');
+        }
+
+        const showAuthView = () => {
+            document.getElementById('app-content').classList.add('hidden');
+            authContainer.classList.remove('hidden');
+        };
+        const showJournalView = () => {
+            authContainer.classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+        };
+
+        showSignupBtn.addEventListener('click', () => { hideAllAuthViews(); signupView.classList.remove('hidden'); });
+        showLoginBtn.addEventListener('click', () => { hideAllAuthViews(); loginView.classList.remove('hidden'); });
+        showForgotBtn.addEventListener('click', () => { hideAllAuthViews(); forgotView.classList.remove('hidden'); });
+        forgotBackToLoginBtn.addEventListener('click', () => { hideAllAuthViews(); loginView.classList.remove('hidden'); });
+        otpBackToLoginBtn.addEventListener('click', () => { hideAllAuthViews(); loginView.classList.remove('hidden'); });
+
+        dropdownLoginBtn.addEventListener('click', () => {
+            showAuthView(); hideAllAuthViews(); loginView.classList.remove('hidden');
+            profileDropdown.classList.add('hidden');
+        });
+        dropdownSignupBtn.addEventListener('click', () => {
+            showAuthView(); hideAllAuthViews(); signupView.classList.remove('hidden');
+            profileDropdown.classList.add('hidden');
+        });
+        backToJournalBtns.forEach(btn => btn.addEventListener('click', showJournalView));
+
+        profileBtn.addEventListener('click', () => profileDropdown.classList.toggle('hidden'));
+        document.addEventListener('click', (e) => {
+            if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.add('hidden');
+            }
+        });
+
+        // JWT login: call /auth/login, store the returned token (not raw credentials)
+        async function attemptLogin(email, password) {
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            });
+            if (!res.ok) return false;
+            const data = await res.json();
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('username', data.email);
+            localStorage.setItem('loginTimestamp', Date.now().toString());
+            return true;
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginError.classList.add('hidden');
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            try {
+                const ok = await attemptLogin(email, password);
+                if (ok) {
+                    showJournalView();
+                    updateUIForAuthState();
+                    showToast('Welcome back!');
+                    loginForm.reset();
+                } else {
+                    loginError.textContent = "We couldn't sign you in. Check your email and password, or sign up below if you're new here.";
+                    loginError.classList.remove('hidden');
+                }
+            } catch (err) {
+                loginError.textContent = 'Could not reach the server.';
+                loginError.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            signupError.classList.add('hidden');
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const submitBtn = signupForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            try {
+                const res = await fetch('/public/create-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+                if (res.status === 201) {
+                    await attemptLogin(email, password);
+                    showJournalView();
+                    updateUIForAuthState();
+                    showToast('Account created successfully!');
+                    signupForm.reset();
+                } else if (res.status === 409) {
+                    signupError.textContent = 'That email is already registered. Try logging in instead.';
+                    signupError.classList.remove('hidden');
+                } else {
+                    signupError.textContent = 'Could not create account.';
+                    signupError.classList.remove('hidden');
+                }
+            } catch (err) {
+                signupError.textContent = 'Could not reach the server.';
+                signupError.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        async function requestOtp(email) {
+            return fetch('/public/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+        }
+
+        forgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value.trim();
+            const submitBtn = forgotForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            try {
+                await requestOtp(email);
+                pendingResetEmail = email;
+                document.getElementById('otp-email-display').textContent = email;
+                hideAllAuthViews();
+                otpView.classList.remove('hidden');
+                forgotForm.reset();
+                showToast('If that account exists, a code has been sent.');
+            } catch (err) {
+                showToast('Could not reach the server.', true);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        otpResendBtn.addEventListener('click', async () => {
+            if (!pendingResetEmail) return;
+            try {
+                await requestOtp(pendingResetEmail);
+                showToast('Code resent.');
+            } catch (err) {
+                showToast('Could not reach the server.', true);
+            }
+        });
+
+        otpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            otpError.classList.add('hidden');
+            const otp = document.getElementById('otp-code').value.trim();
+            const newPassword = document.getElementById('otp-new-password').value;
+            const confirmPassword = document.getElementById('otp-confirm-password').value;
+
+            if (newPassword !== confirmPassword) {
+                otpError.textContent = 'Passwords do not match.';
+                otpError.classList.remove('hidden');
+                return;
+            }
+
+            const submitBtn = otpForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            try {
+                const res = await fetch('/public/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingResetEmail, otp: otp, newPassword: newPassword })
+                });
+                const text = await res.text();
+                if (res.ok) {
+                    showToast('Password reset! Please log in.');
+                    otpForm.reset();
+                    pendingResetEmail = null;
+                    hideAllAuthViews();
+                    loginView.classList.remove('hidden');
+                } else {
+                    otpError.textContent = text || 'Invalid or expired code.';
+                    otpError.classList.remove('hidden');
+                }
+            } catch (err) {
+                otpError.textContent = 'Could not reach the server.';
+                otpError.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        function handleLogout(expired) {
+            clearSession();
+            cancelEdit();
+            updateUIForAuthState();
+            showJournalView();
+            hideAllAuthViews();
+            loginView.classList.remove('hidden');
+            showToast(expired ? 'Session expired. Please log in again.' : 'You have been logged out.', expired);
+        }
+        logoutBtn.addEventListener('click', () => handleLogout(false));
+
+        let currentEntries = [];
+
+        async function loadEntries() {
+            try {
+                const res = await fetch('/journal', { headers: getAuthHeader() });
+                if (res.status === 401) { handleLogout(true); return; }
+                const data = await res.json();
+                currentEntries = Array.isArray(data) ? data : [];
+                renderEntries(currentEntries);
+            } catch (err) {
+                showToast('Could not load entries. Is the server running?', true);
+            }
+        }
+
+        function renderEntries(entries) {
+            entriesContainer.innerHTML = '';
+            if (!entries || entries.length === 0) {
+                noEntriesMessage.classList.remove('hidden');
+                return;
+            }
+            noEntriesMessage.classList.add('hidden');
+            entries.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(entry => {
+                const card = document.createElement('div');
+                card.className = 'entry-card-animation bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col';
+                card.innerHTML =
+                    '<h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 break-words mb-2">' + escapeHtml(entry.title) + '</h3>' +
+                    (entry.category ? '<span class="inline-block w-fit text-xs font-medium px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 mb-3">' + escapeHtml(entry.category) + '</span>' : '') +
+                    '<p class="text-sm text-slate-600 dark:text-gray-400 flex-1 mb-4 whitespace-pre-wrap">' + escapeHtml(entry.content) + '</p>' +
+                    '<div class="flex items-center justify-between mt-auto pt-3 border-t border-slate-100 dark:border-gray-700">' +
+                    '<span class="text-xs text-slate-400 dark:text-gray-500">' + formatDate(entry.date) + '</span>' +
+                    '<div class="flex gap-2">' +
+                    '<button data-id="' + entry.id + '" class="edit-btn text-sm text-green-600 hover:underline">Edit</button>' +
+                    '<button data-id="' + entry.id + '" class="delete-btn text-sm text-red-500 hover:underline">Delete</button>' +
+                    '</div></div>';
+                entriesContainer.appendChild(card);
+            });
+            document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => startEdit(btn.dataset.id)));
+            document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => openDeleteModal(btn.dataset.id)));
+        }
+
+        let editingId = null;
+
+        entryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const category = document.getElementById('category').value.trim();
+            const payload = { title: title, content: content, category: category };
+            const saveBtn = document.getElementById('save-entry-btn');
+            saveBtn.disabled = true;
+            try {
+                let res;
+                if (editingId) {
+                    res = await fetch('/journal/id/' + editingId, {
+                        method: 'PUT',
+                        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeader()),
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    res = await fetch('/journal', {
+                        method: 'POST',
+                        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeader()),
+                        body: JSON.stringify(payload)
+                    });
+                }
+                if (res.status === 401) { handleLogout(true); return; }
+                if (!res.ok) throw new Error('Save failed');
+                showToast(editingId ? 'Entry updated.' : 'Entry saved.');
+                cancelEdit();
+                loadEntries();
+            } catch (err) {
+                showToast('Could not save entry.', true);
+            } finally {
+                saveBtn.disabled = false;
+            }
+        });
+
+        function startEdit(id) {
+            const entry = currentEntries.find(e => e.id === id);
+            if (!entry) return;
+            editingId = id;
+            document.getElementById('entryId').value = id;
+            document.getElementById('title').value = entry.title || '';
+            document.getElementById('content').value = entry.content || '';
+            document.getElementById('category').value = entry.category || '';
+            document.getElementById('form-title').textContent = 'Edit Entry';
+            document.getElementById('save-entry-btn').textContent = 'Update Entry';
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editingId = null;
+            entryForm.reset();
+            document.getElementById('entryId').value = '';
+            document.getElementById('form-title').textContent = 'New Entry';
+            document.getElementById('save-entry-btn').textContent = 'Save Entry';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        }
+        document.getElementById('cancel-edit-btn').addEventListener('click', cancelEdit);
+
+        let pendingDeleteId = null;
+        function openDeleteModal(id) {
+            pendingDeleteId = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+        document.getElementById('cancel-delete-btn').addEventListener('click', () => {
+            pendingDeleteId = null;
+            document.getElementById('delete-modal').classList.add('hidden');
+        });
+        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+            if (!pendingDeleteId) return;
+            try {
+                const res = await fetch('/journal/id/' + pendingDeleteId, { method: 'DELETE', headers: getAuthHeader() });
+                if (res.status === 401) { handleLogout(true); return; }
+                if (res.status === 204) {
+                    showToast('Entry deleted.');
+                    loadEntries();
+                } else {
+                    showToast('Could not delete entry.', true);
+                }
+            } catch (err) {
+                showToast('Could not delete entry.', true);
+            } finally {
+                pendingDeleteId = null;
+                document.getElementById('delete-modal').classList.add('hidden');
+            }
+        });
+
+        function updateUIForAuthState() {
+            const username = getCurrentUsername();
+            if (username) {
+                formFieldset.disabled = false;
+                dropdownLoggedOut.classList.add('hidden');
+                dropdownLoggedIn.classList.remove('hidden');
+                userAvatar.innerHTML = '<span class="font-bold">' + username.charAt(0).toUpperCase() + '</span>';
+                userEmailDisplay.textContent = username;
+                loadEntries();
+            } else {
+                formFieldset.disabled = true;
+                dropdownLoggedOut.classList.remove('hidden');
+                dropdownLoggedIn.classList.add('hidden');
+                userAvatar.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>';
+                entriesContainer.innerHTML = '';
+                noEntriesMessage.classList.remove('hidden');
+            }
+        }
+
+        updateUIForAuthState();
+    });
+</script>
+</body>
+</html>
