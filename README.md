@@ -55,27 +55,6 @@ Edit and Delete Feature
 https://github.com/user-attachments/assets/5f507a6f-59ca-49cf-8837-451b5b29ae15
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-| Login | Journal Dashboard |
-|---|---|
-| *(paste screenshot here)* | *(paste screenshot here)* |
-
-| Password Recovery (OTP) | New Entry |
-|---|---|
-| *(paste screenshot here)* | *(paste screenshot here)* |
-
 </div>
 
 ---
